@@ -9,5 +9,14 @@ For more details: [Prompt](https://github.com/guptaviha/Email-Spam-Filter/blob/m
 
 ### Contributors
 
-[![](https://github.com/guptaviha.png?size=50)](https://github.com/guptaviha)
-[![](https://github.com/AatmanMantri.png?size=50)](https://github.com/AatmanMantri)
+<p float="left">
+
+<a href="https://github.com/guptaviha">
+    <img src="https://github.com/guptaviha.png?size=50" alt="Viha Gupta" width="50">
+</a>
+
+<a href="https://github.com/AatmanMantri">
+    <img src="https://github.com/AatmanMantri.png?size=50" alt="Aatman Mantri" width="50">
+</a>
+
+</p>
