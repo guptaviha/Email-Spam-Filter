@@ -1,0 +1,89 @@
+# - IAM roles - done
+# - Lambda Function LF1 - done
+# - Bucket S1 - done
+# - Lambda InvokePermission for S1
+# - BucketPolicy (Object Put/Create trigger) - put done
+# - ReceiptRule
+# - ReceiptRuleSet (no need to activate)
+
+Resources: 
+  ...    
+  CF-S3-Bucket-Aatman:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties: 
+      BucketName: "aatman.ml-emails"
+
+  # got this from s3 console
+  CF-S3-BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: "aatman.ml-emails"
+      PolicyDocument: 
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "AllowSESPuts",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "ses.amazonaws.com"
+                    },
+                    "Action": "s3:PutObject",
+                    "Resource": "arn:aws:s3:::aatman.ml-emails/*",
+                    "Condition": {
+                        "StringEquals": {
+                            "aws:Referer": "529645924119"
+                        }
+                    }
+                }
+            ]
+        }
+
+  CF-S3-Bucket-Viha:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties: 
+      BucketName: "vihas-bucket"
+
+  # using aws iam get-role --role-name SpamFilterLf1Role and policy arns on console
+  CF-Lambda-Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::529645924119:policy/service-role/AWSLambdaBasicExecutionRole-0fa7aa0a-0944-47c2-9ece-0712b5c6fb2c
+        - arn:aws:iam::529645924119:policy/service-role/AWSLambdaS3ExecutionRole-79425656-f066-4516-8926-c436e25d00e5
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonSESFullAccess
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+      RoleName: "SpamFilterLf1Role"
+
+  # need to add the full code here
+  CF-Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: "python3.7"
+      Role: !GetAtt CF-Lambda-Role.Arn
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        ZipFile: |
+          import boto3
+          import email
+          import json
+          import urllib.parse
+          import string
+          import sys
+          import numpy as np
+          import json
+          from hashlib import md5
+    DependsOn : CF-Lambda-Role
